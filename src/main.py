@@ -6,6 +6,7 @@ import networkx as nx
 import argparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
+import os
 
 def load_serp_data(file_path):
     """
@@ -132,7 +133,7 @@ def main():
                         help="Minimum number of common URLs required to consider two keywords related.")
     parser.add_argument('--min_overlap', type=float, default=0.1,
                         help="Minimum overlap coefficient required to consider two keywords related.")
-    parser.add_argument('--output_file', type=str, default='keyword_clusters.csv',
+    parser.add_argument('--output_file', type=str, default='outputs/keyword_clusters.csv',
                         help="Name of the output CSV file for keyword clusters.")
     parser.add_argument('--keyword_column', type=str, default='search.q',
                         help="Name of the column containing keywords in the input CSV. Default is 'search.q' for DataForSEO.")
@@ -141,6 +142,9 @@ def main():
 
     args = parser.parse_args()
 
+    # Create outputs directory if it doesn't exist
+    os.makedirs('outputs', exist_ok=True)
+    
     # File path to your CSV data
     file_path = args.file_path
     

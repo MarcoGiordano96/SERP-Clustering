@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 from itertools import combinations
 import scipy.cluster.hierarchy as sch
+import os
 
 def load_serp_data(file_path):
     """
@@ -286,43 +287,34 @@ def create_overlap_heatmap(overlap_matrix, overlap_percentages):
     return fig
 
 def main():
-    parser = argparse.ArgumentParser(description="Analyze domain rankings in SERP data.")
-    parser.add_argument('file_path', type=str, help="Path to the input CSV file containing SERP data.")
-    parser.add_argument('--num_domains', type=int, default=10,
-                        help="Number of top domains to display in the heatmap.")
-    parser.add_argument('--output_file', type=str, default='domain_heatmap.html',
-                        help="Name of the output HTML file for the heatmap visualization.")
-    parser.add_argument('--overlap_file', type=str, default='domain_overlap.html',
-                        help="Name of the output HTML file for the overlap analysis visualization.")
-    
+    parser = argparse.ArgumentParser(description='Analyze domain distribution in SERP data')
+    parser.add_argument('file_path', type=str, help='Path to the input CSV file')
     args = parser.parse_args()
+    
+    # Create outputs directory if it doesn't exist
+    os.makedirs('outputs', exist_ok=True)
     
     # Load data
     df = load_serp_data(args.file_path)
     
-    # Create ranking heatmap
-    fig = serp_heatmap(df, num_domains=args.num_domains)
+    # Create domain heatmap
+    fig = serp_heatmap(df)
+    fig.write_html('outputs/domain_heatmap.html')
     
-    # Create overlap analysis
-    overlap_matrix, overlap_percentages, common_keywords = analyze_domain_overlap(df, top_n_domains=args.num_domains)
-    overlap_fig = create_overlap_heatmap(overlap_matrix, overlap_percentages)
+    # Analyze domain overlaps
+    overlap_matrix, overlap_percentages, common_keywords = analyze_domain_overlap(df)
+    fig_overlap = create_overlap_heatmap(overlap_matrix, overlap_percentages)
+    fig_overlap.write_html('outputs/domain_overlap.html')
     
-    # Save visualizations
-    output_path = Path(args.output_file)
-    fig.write_html(str(output_path))
-    print(f"Domain ranking heatmap saved to {output_path}")
+    print("Domain ranking heatmap saved to outputs/domain_heatmap.html")
+    print("Domain overlap analysis saved to outputs/domain_overlap.html")
     
-    overlap_path = Path(args.overlap_file)
-    overlap_fig.write_html(str(overlap_path))
-    print(f"Domain overlap analysis saved to {overlap_path}")
-    
-    # Print some insights
+    # Print top domain overlaps
     print("\nTop domain overlaps:")
-    for (dom1, dom2), keywords in common_keywords.items():
-        if len(keywords) > 0:
-            print(f"\n{dom1} and {dom2}:")
-            print(f"Common keywords: {len(keywords)}")
-            print(f"Sample keywords: {', '.join(list(keywords)[:5])}")
+    for (dom1, dom2), keywords in sorted(common_keywords.items(), key=lambda x: len(x[1]), reverse=True)[:10]:
+        print(f"\n{dom1} and {dom2}:")
+        print(f"Common keywords: {len(keywords)}")
+        print("Sample keywords:", ", ".join(list(keywords)[:5]))
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main() 

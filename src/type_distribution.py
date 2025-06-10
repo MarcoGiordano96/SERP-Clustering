@@ -2,6 +2,7 @@ import plotly.express as px
 import plotly.graph_objs as go
 import pandas as pd
 import argparse
+import os
 
 def analyze_above_fold(df):
     # Define above fold threshold (in pixels)
@@ -57,7 +58,7 @@ def analyze_above_fold(df):
     )
 
     # Save the visualization
-    fig.write_html('above_fold_distribution.html')
+    fig.write_html('outputs/above_fold_distribution.html')
 
     # Create a summary table
     fig_table = go.Figure(data=[go.Table(
@@ -101,7 +102,7 @@ def analyze_above_fold(df):
         margin=dict(l=10, r=10, t=50, b=15)
     )
 
-    fig_table.write_html('above_fold_summary.html')
+    fig_table.write_html('outputs/above_fold_summary.html')
 
     # Print summary statistics
     print("\nAbove/Below Fold Analysis:")
@@ -206,7 +207,7 @@ def analyze_type_distribution(df):
     fig.update_yaxes(showgrid=False)
     
     # Save the interactive chart
-    fig.write_html('type_distribution.html')
+    fig.write_html('outputs/type_distribution.html')
     
     # Create and save the distribution summary table
     fig_table = go.Figure(data=[go.Table(
@@ -246,18 +247,19 @@ def analyze_type_distribution(df):
         margin=dict(l=10, r=10, t=50, b=15)
     )
     
-    fig_table.write_html('type_distribution_table.html')
-    print("Type distribution analysis saved to type_distribution.html and type_distribution_table.html")
+    fig_table.write_html('outputs/type_distribution_table.html')
+    print("Type distribution analysis saved to outputs/type_distribution.html and outputs/type_distribution_table.html")
 
 def main():
-    parser = argparse.ArgumentParser(description='Analyze SERP data distribution')
-    parser.add_argument('--input_file', default='/Users/marcogiordano/Desktop/Notebooks_data/dataforseo-fin.csv',
-                      help='Path to the input CSV file')
+    parser = argparse.ArgumentParser(description='Analyze type distribution in SERP data')
+    parser.add_argument('--input_file', type=str, required=True, help='Path to the input CSV file')
     args = parser.parse_args()
     
-    # Read the CSV file
+    # Create outputs directory if it doesn't exist
+    os.makedirs('outputs', exist_ok=True)
+    
     print(f"Reading data from {args.input_file}...")
-    df = pd.read_csv(args.input_file, low_memory=False)
+    df = pd.read_csv(args.input_file)
     
     # Analyze type distribution
     analyze_type_distribution(df)
@@ -265,5 +267,5 @@ def main():
     # Analyze above/below fold distribution
     analyze_above_fold(df)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main() 
