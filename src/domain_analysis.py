@@ -287,21 +287,24 @@ def create_overlap_heatmap(overlap_matrix, overlap_percentages):
     return fig
 
 def main():
-    parser = argparse.ArgumentParser(description='Analyze domain distribution in SERP data')
-    parser.add_argument('file_path', type=str, help='Path to the input CSV file')
+    parser = argparse.ArgumentParser(description="Analyze domain rankings and overlaps in SERP data")
+    parser.add_argument('input_file', type=str, help="Path to the input CSV file containing SERP data")
     args = parser.parse_args()
-    
+
     # Create outputs directory if it doesn't exist
     os.makedirs('outputs', exist_ok=True)
     
     # Load data
-    df = load_serp_data(args.file_path)
+    print(f"Loading data from {args.input_file}...")
+    df = load_serp_data(args.input_file)
     
     # Create domain heatmap
+    print("Creating domain heatmap...")
     fig = serp_heatmap(df)
     fig.write_html('outputs/domain_heatmap.html')
     
     # Analyze domain overlaps
+    print("Analyzing domain overlaps...")
     overlap_matrix, overlap_percentages, common_keywords = analyze_domain_overlap(df)
     fig_overlap = create_overlap_heatmap(overlap_matrix, overlap_percentages)
     fig_overlap.write_html('outputs/domain_overlap.html')
@@ -316,5 +319,5 @@ def main():
         print(f"Common keywords: {len(keywords)}")
         print("Sample keywords:", ", ".join(list(keywords)[:5]))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main() 

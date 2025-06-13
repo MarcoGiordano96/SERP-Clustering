@@ -1,37 +1,34 @@
 # SERP Clustering and Analysis
 
-This project provides tools for analyzing Search Engine Results Page (SERP) data, including keyword clustering, domain analysis, and type distribution analysis. It's particularly useful for SEO analysis and understanding search result patterns.
+A Python tool for analyzing Search Engine Results Pages (SERP) data, including keyword clustering, domain analysis, and type distribution analysis.
 
 ## Features
 
-### 1. Keyword Clustering
-- Groups related keywords based on shared URLs in search results
+### Keyword Clustering
+- Identifies related keywords based on shared URLs in SERP results
 - Uses graph-based clustering with overlap coefficient
-- Identifies main topics for each cluster using TF-IDF analysis
-- Outputs detailed cluster information including size, keywords, and common URLs
+- Identifies main topics for each cluster using TF-IDF
+- Generates CSV output with cluster details
 
-### 2. Domain Analysis
+### Domain Analysis
 - Creates interactive heatmaps of domain rankings
-- Shows domain coverage and average positions
-- Visualizes ranking distribution across different positions
-- Analyzes domain overlap and competition
-- Provides detailed metrics for top-performing domains
+- Analyzes domain overlaps and common keywords
+- Generates visualizations for domain distribution
 
-### 3. Type Distribution Analysis
-- Analyzes the distribution of different result types in SERPs
-- Creates interactive visualizations of type frequencies
-- Provides above/below fold analysis
-- Generates detailed summary tables
+### Type Distribution Analysis
+- Analyzes the distribution of SERP element types
+- Identifies elements above and below the fold
+- Creates interactive visualizations and summary tables
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
-cd serp_clustering_project
+git clone https://github.com/yourusername/serp-clustering.git
+cd serp-clustering
 ```
 
-2. Create and activate a virtual environment (recommended):
+2. Create and activate a virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -44,91 +41,122 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Keyword Clustering
+The main script (`main.py`) serves as a CLI orchestrator to run analyses. It provides a unified interface to run keyword clustering, domain analysis, and type distribution analysis.
 
+### Basic Usage
+
+Run all analyses on your data:
 ```bash
-python src/main.py path/to/your/serp_data.csv --keyword_column keyword --url_column url
+python src/main.py /path/to/your/data.csv
 ```
 
-Optional parameters:
-- `--min_common_urls`: Minimum number of common URLs to consider keywords related (default: 3)
-- `--min_overlap`: Minimum overlap coefficient (default: 0.1)
-- `--output_file`: Name of the output CSV file (default: 'outputs/keyword_clusters.csv')
+### Command Line Options
 
-### Domain Analysis
+The main script supports the following options:
 
 ```bash
-python src/domain_analysis.py path/to/your/serp_data.csv
+python src/main.py /path/to/your/data.csv [options]
 ```
 
-The script will generate:
-- Domain ranking heatmap
-- Domain overlap analysis
-- Detailed domain competition metrics
+Required arguments:
+- `input_file`: Path to your SERP data CSV file
 
-### Type Distribution Analysis
+Optional arguments:
+- `--analysis {all,serp,domain,type}`: Type of analysis to run (default: all)
+- `--keyword_column KEYWORD_COLUMN`: Column name for keywords (default: 'keyword')
+- `--url_column URL_COLUMN`: Column name for URLs (default: 'url')
+- `--min_common_urls MIN_COMMON_URLS`: Minimum common URLs for clustering (default: 3)
+- `--min_overlap MIN_OVERLAP`: Minimum overlap coefficient (default: 0.1)
 
+### Examples
+
+1. Run all analyses with default settings:
 ```bash
-python src/type_distribution.py --input_file path/to/your/serp_data.csv
+python src/main.py /path/to/your/data.csv
 ```
 
-The script will generate:
-- Type distribution visualization
-- Above/below fold analysis
-- Detailed summary tables
+2. Run only keyword clustering analysis:
+```bash
+python src/main.py /path/to/your/data.csv --analysis serp
+```
+
+3. Run only domain analysis:
+```bash
+python src/main.py /path/to/your/data.csv --analysis domain
+```
+
+4. Run only type distribution analysis:
+```bash
+python src/main.py /path/to/your/data.csv --analysis type
+```
+
+5. Run analyses with custom column names:
+```bash
+python src/main.py /path/to/your/data.csv --keyword_column search_term --url_column result_url
+```
+
+6. Run with custom clustering parameters:
+```bash
+python src/main.py /path/to/your/data.csv --min_common_urls 5 --min_overlap 0.2
+```
+
+### Advanced Usage
+
+While the main script is the recommended way to run analyses, you can also run individual scripts directly if needed:
+
+1. Keyword Clustering:
+```bash
+python src/serp_clustering.py /path/to/your/data.csv --keyword_column keyword --url_column url
+```
+
+2. Domain Analysis:
+```bash
+python src/domain_analysis.py /path/to/your/data.csv
+```
+
+3. Type Distribution Analysis:
+```bash
+python src/type_distribution.py --input_file /path/to/your/data.csv
+```
 
 ## Input Data Format
 
-The scripts expect a CSV file with the following columns:
-- `keyword`: The search query/keyword
-- `rank_group`: The position in search results
-- `domain`: The domain name
-- `url`: The full URL
-- `title`: The page title
-- `description`: The meta description
-- `type`: The type of search result
-- `rectangle.y`: The vertical position of the result
+The input CSV file should contain the following columns:
+- `keyword`: The search keyword
+- `url`: The URL in the SERP results
+- `type`: The type of SERP element
+- `rectangle.y`: The vertical position of the element (for above/below fold analysis)
 
-## Output
+## Output Files
 
 All outputs are saved in the `outputs` directory:
 
 ### Keyword Clustering
-- `keyword_clusters.csv`: Contains:
-  - Cluster topic
-  - Keywords in the cluster
-  - Cluster size
-  - Common URLs
-  - URL count
+- `keyword_clusters.csv`: Contains cluster topics, keywords, sizes, and common URLs
 
 ### Domain Analysis
-- `domain_heatmap.html`: Interactive heatmap showing:
-  - Domain rankings distribution
-  - Coverage percentage
-  - Average position
-  - Total appearances
-- `domain_overlap.html`: Interactive visualization of domain competition
+- `domain_heatmap.html`: Interactive visualization of domain rankings
+- `domain_overlap.html`: Interactive visualization of domain overlaps
 
 ### Type Distribution Analysis
-- `type_distribution.html`: Interactive visualization of result types
-- `type_distribution_table.html`: Detailed type distribution summary
-- `above_fold_distribution.html`: Above/below fold analysis
-- `above_fold_summary.html`: Fold distribution summary
+- `type_distribution.html`: Interactive visualization of SERP element types
+- `type_distribution_table.html`: Summary table of type distribution
+- `above_fold_distribution.html`: Interactive visualization of above/below fold distribution
+- `above_fold_summary.html`: Summary table of above/below fold analysis
 
 ## Dependencies
 
-- pandas >= 2.0.0
-- networkx >= 3.0
-- scikit-learn >= 1.7.0
-- plotly >= 6.1.0
-- numpy >= 1.22.0
-- scipy >= 1.10.0
-- argparse >= 1.4.0
+- pandas
+- networkx
+- scikit-learn
+- plotly
+- scipy
+- argparse
 
 ## Contributing
 
-Feel free to submit issues and enhancement requests!
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request 
