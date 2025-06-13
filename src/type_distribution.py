@@ -15,18 +15,24 @@ def analyze_above_fold(df):
     above_fold_count = df['is_above_fold'].sum()
     below_fold_count = len(df) - above_fold_count
 
-    # Create a pie chart for above/below fold distribution
-    fig = go.Figure(data=[go.Pie(
-        labels=['Above Fold', 'Below Fold'],
-        values=[above_fold_count, below_fold_count],
-        hole=.3,
-        marker=dict(
-            colors=['#FF8000', '#FFB366'],
-            line=dict(color='white', width=2)
+    # Create a horizontal bar chart for above/below fold distribution
+    fig = go.Figure(data=[go.Bar(
+        y=['Above Fold', 'Below Fold'],
+        x=[above_fold_count, below_fold_count],
+        text=[above_fold_count, below_fold_count],
+        textposition='outside',
+        textfont=dict(
+            family='Trebuchet MS, sans-serif',
+            size=14,
+            color='rgba(50, 50, 50, 0.8)'
         ),
-        textinfo='label+percent',
-        textfont_size=14,
-        hoverinfo='label+value+percent'
+        orientation='h',
+        marker=dict(
+            color=['#FF8000', '#FFB366'],
+            line=dict(color='rgba(0,0,0,0.3)', width=1.5)
+        ),
+        hovertemplate='<b>%{y}</b><br>Count: %{x}<br>Percentage: %{customdata:.2f}%<extra></extra>',
+        customdata=[(above_fold_count/len(df)*100), (below_fold_count/len(df)*100)]
     )])
 
     # Update layout
@@ -43,18 +49,40 @@ def analyze_above_fold(df):
                 color='rgba(0,0,0,0.85)'
             )
         },
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="center",
-            x=0.5
-        ),
-        height=600,
+        yaxis_title="",
+        xaxis_title="",
+        template="plotly_white",
+        height=400,
         width=800,
-        margin=dict(l=50, r=50, t=100, b=50),
-        paper_bgcolor='rgba(250,250,250,0.95)'
+        yaxis={
+            'tickfont': dict(
+                family='Roboto, sans-serif',
+                size=16,
+                color='rgba(0,0,0,0.75)'
+            ),
+            'gridwidth': 0.1,
+            'gridcolor': 'rgba(0,0,0,0.05)'
+        },
+        xaxis={
+            'showgrid': True,
+            'gridwidth': 0.1,
+            'gridcolor': 'rgba(0,0,0,0.05)',
+            'zeroline': False,
+            'tickfont': dict(
+                family='Roboto, sans-serif',
+                size=14,
+                color='rgba(0,0,0,0.6)'
+            )
+        },
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=16,
+            font_family="Montserrat, sans-serif",
+            bordercolor="rgba(0,0,0,0.2)"
+        ),
+        margin=dict(l=20, r=60, t=80, b=40),
+        bargap=0.25,
+        plot_bgcolor='rgba(250,250,250,0.95)'
     )
 
     # Save the visualization
@@ -251,21 +279,24 @@ def analyze_type_distribution(df):
     print("Type distribution analysis saved to outputs/type_distribution.html and outputs/type_distribution_table.html")
 
 def main():
-    parser = argparse.ArgumentParser(description='Analyze type distribution in SERP data')
-    parser.add_argument('--input_file', type=str, required=True, help='Path to the input CSV file')
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Analyze SERP type distribution')
+    parser.add_argument('input_file', help='Path to the input CSV file')
     args = parser.parse_args()
-    
+
     # Create outputs directory if it doesn't exist
     os.makedirs('outputs', exist_ok=True)
-    
-    print(f"Reading data from {args.input_file}...")
+
+    # Load the data
+    print(f"\nLoading data from {args.input_file}...")
     df = pd.read_csv(args.input_file)
-    
-    # Analyze type distribution
+
+    # Run the type distribution analysis
+    print("\nRunning type distribution analysis...")
     analyze_type_distribution(df)
-    
-    # Analyze above/below fold distribution
-    analyze_above_fold(df)
+
+    print("\nAnalysis completed successfully!")
+    print("Results have been saved to the 'outputs' directory.")
 
 if __name__ == '__main__':
     main() 
